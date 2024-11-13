@@ -4,5 +4,178 @@
         <name>DirectoryTreeGenerator</name>
     </assembly>
     <members>
+        <member name="T:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator">
+            <summary>
+            目錄樹生成器
+            用於生成專案目錄結構的 Markdown 文檔
+            </summary>
+        </member>
+        <member name="F:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator._config">
+            <summary>
+            生成器配置
+            </summary>
+        </member>
+        <member name="F:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator._treeBuilder">
+            <summary>
+            用於構建目錄樹字符串的建構器
+            </summary>
+        </member>
+        <member name="F:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator._indentLevel">
+            <summary>
+            當前處理的目錄層級（用於控制縮進）
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.#ctor(ozakboy.DirectoryTreeGenerator.GeneratorConfig)">
+            <summary>
+            初始化目錄樹生成器
+            </summary>
+            <param name="config">生成器配置對象</param>
+            <exception cref="T:System.ArgumentNullException">當配置為null時拋出</exception>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.GenerateTree(System.String,System.String)">
+            <summary>
+            生成目錄樹結構文檔
+            </summary>
+            <param name="rootPath">要掃描的根目錄路徑</param>
+            <param name="outputPath">輸出文件的目錄路徑</param>
+            <exception cref="T:System.IO.DirectoryNotFoundException">當根目錄不存在時拋出</exception>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.ProcessDirectory(System.IO.DirectoryInfo)">
+            <summary>
+            處理目錄內容
+            </summary>
+            <param name="directory">要處理的目錄信息</param>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.ShouldIgnoreDirectory(System.String)">
+            <summary>
+            檢查是否應該忽略指定目錄
+            </summary>
+            <param name="directoryName">目錄名稱</param>
+            <returns>是否應該忽略</returns>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.ShouldIgnoreFile(System.String)">
+            <summary>
+            檢查是否應該忽略指定文件
+            </summary>
+            <param name="fileName">文件名稱</param>
+            <returns>是否應該忽略</returns>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeGenerator.AppendLine(System.String)">
+            <summary>
+            添加一行到輸出，並處理縮進
+            </summary>
+            <param name="content">要添加的內容</param>
+        </member>
+        <member name="T:ozakboy.DirectoryTreeGenerator.TreeStatistics">
+            <summary>
+            目錄樹統計資訊類
+            用於收集和生成目錄結構的統計資訊
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.TreeStatistics.#ctor">
+            <summary>
+            建構函數，初始化統計資料
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.TreeStatistics.AddFile(System.IO.FileInfo)">
+            <summary>
+            添加文件到統計資訊中
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.TreeStatistics.AddDirectory">
+            <summary>
+            添加目錄到統計資訊中
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.TreeStatistics.GenerateReport">
+            <summary>
+            生成統計報告
+            </summary>
+            <returns>格式化的統計報告字符串</returns>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.TreeStatistics.FormatFileSize(System.Int64)">
+            <summary>
+            格式化文件大小
+            </summary>
+            <param name="bytes">文件大小（位元組）</param>
+            <returns>格式化後的文件大小字符串</returns>
+        </member>
+        <member name="T:ozakboy.DirectoryTreeGenerator.DirectoryTreeUtils">
+            <summary>
+            目錄樹工具類
+            提供處理路徑和預設忽略模式的公用方法
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeUtils.NormalizePath(System.String)">
+            <summary>
+            標準化路徑
+            將絕對路徑轉換為相對路徑
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.DirectoryTreeUtils.GetDefaultIgnorePatterns">
+            <summary>
+            獲取預設的忽略模式
+            </summary>
+        </member>
+        <member name="T:ozakboy.DirectoryTreeGenerator.GeneratorConfig">
+            <summary>
+            目錄樹生成器的配置類
+            定義了生成目錄樹時的各種選項和設定
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.GeneratorConfig.#ctor">
+            <summary>
+            建構函數，設置默認的忽略模式
+            </summary>
+        </member>
+        <member name="T:ozakboy.DirectoryTreeGenerator.GlobMatcher">
+            <summary>
+            Glob模式匹配器
+            用於檢查文件路徑是否符合指定的glob模式
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.GlobMatcher.IsMatch(System.String,System.String)">
+            <summary>
+            檢查路徑是否匹配指定的glob模式
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.GlobMatcher.GlobToRegex(System.String)">
+            <summary>
+            將glob模式轉換為正則表達式
+            </summary>
+        </member>
+        <member name="T:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask">
+            <summary>
+            MSBuild 任務類，用於生成目錄樹結構
+            當專案進行構建時會自動執行此任務
+            </summary>
+        </member>
+        <member name="P:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask.ProjectDir">
+            <summary>
+            必需的專案目錄路徑
+            </summary>
+        </member>
+        <member name="P:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask.ConfigPath">
+            <summary>
+            必需的配置文件路徑
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask.Execute">
+            <summary>
+            執行目錄樹生成任務的主要方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask.ValidateInputs">
+            <summary>
+            驗證輸入參數的有效性
+            </summary>
+        </member>
+        <member name="M:ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask.LoadConfiguration">
+            <summary>
+            載入配置文件
+            如果配置文件不存在或解析失敗，則使用默認配置
+            </summary>
+        </member>
     </members>
 </doc>
