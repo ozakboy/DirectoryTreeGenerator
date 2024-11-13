@@ -1,0 +1,19 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)/../tasks/$(MSBuildProjectTargetFramework)/DirectoryTreeGenerator.dll" />
+
+  <!-- 定義自定義屬性 -->
+  <PropertyGroup>
+    <GenerateDirectoryTree Condition="'$(GenerateDirectoryTree)' == ''">true</GenerateDirectoryTree>
+    <DirectoryTreeConfigPath Condition="'$(DirectoryTreeConfigPath)' == ''">$(MSBuildProjectDirectory)/directorytree.json</DirectoryTreeConfigPath>
+  </PropertyGroup>
+
+  <!-- 在建置後執行目錄樹生成 -->
+  <Target Name="GenerateDirectoryTreeAfterBuild" 
+          AfterTargets="Build" 
+          Condition="'$(GenerateDirectoryTree)' == 'true'">
+    <GenerateDirectoryTreeTask
+      ProjectDir="$(MSBuildProjectDirectory)"
+      ConfigPath="$(DirectoryTreeConfigPath)" />
+  </Target>
+</Project>

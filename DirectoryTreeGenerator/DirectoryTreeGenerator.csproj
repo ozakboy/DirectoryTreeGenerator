@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
+    <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
+    <PackageId>DirectoryTreeGenerator</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>ozakboy</Authors>
+    <RepositoryType>github</RepositoryType>
+    <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
+    <PackAsTool>true</PackAsTool>
+    <DocumentationFile>file.xml</DocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>license</PackageLicenseFile>
+    <Description>A library for generating directory structure documentation in Markdown format</Description>
+    <PackageTags></PackageTags>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference MSBuild Framework -->
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.12.6" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" PrivateAssets="all" />
+    <!-- Add System.Text.Json for older frameworks -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\**" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+
+</Project>

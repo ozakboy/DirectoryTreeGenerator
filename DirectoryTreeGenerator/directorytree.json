@@ -1,0 +1,12 @@
+{
+  "outputFileName": "DirectoryStructure.md",
+  "ignorePatterns": [
+    "**/bin/**",
+    "**/obj/**",
+    "**/.vs/**"
+  ],
+  "includeFileSize": true,
+  "includeLastModified": true,
+  "includeStatistics": true,
+  "sortDirectoriesFirst": true
+}
