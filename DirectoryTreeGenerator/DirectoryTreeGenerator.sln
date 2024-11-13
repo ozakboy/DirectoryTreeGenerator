@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirectoryTreeGenerator", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryTreeGeneratorTests", "..\DirectoryTreeGeneratorTests\DirectoryTreeGeneratorTests.csproj", "{AB69D296-C4DD-442D-A59D-7D5D0051730D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "..\WebApi\WebApi.csproj", "{FCBD59E9-D05E-4525-9A07-F15D500A20AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AB69D296-C4DD-442D-A59D-7D5D0051730D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB69D296-C4DD-442D-A59D-7D5D0051730D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB69D296-C4DD-442D-A59D-7D5D0051730D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCBD59E9-D05E-4525-9A07-F15D500A20AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCBD59E9-D05E-4525-9A07-F15D500A20AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCBD59E9-D05E-4525-9A07-F15D500A20AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCBD59E9-D05E-4525-9A07-F15D500A20AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
