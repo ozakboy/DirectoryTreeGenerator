@@ -1,6 +1,8 @@
 ﻿// 為不同的.NET框架版本提供相容性擴展方法
 #if NETSTANDARD2_0 || NET462
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace ozakboy.DirectoryTreeGenerator

@@ -1,27 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
+      <LangVersion>10.0</LangVersion>
+      <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
-    <PackageId>DirectoryTreeGenerator</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
-    <Authors>ozakboy</Authors>
-    <RepositoryType>github</RepositoryType>
-    <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
-    <PackAsTool>true</PackAsTool>
-    <DocumentationFile>file.xml</DocumentationFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>license</PackageLicenseFile>
-    <Description>A library for generating directory structure documentation in Markdown format</Description>
-    <PackageTags></PackageTags>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-    <IncludeBuildOutput>true</IncludeBuildOutput>
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
+      <!-- NuGet 套件相關設定 -->
+      <PackageId>ozakboy.DirectoryTreeGenerator</PackageId>
+      <PackageVersion>1.0.0-beta.1</PackageVersion>
+      <Authors>ozakboy</Authors>
+      <Company>ozakboy</Company>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <Description>A library for generating directory structure documentation in Markdown format</Description>
+      <PackageTags>directory-tree;markdown;documentation;generator</PackageTags>
+
+      <!-- Repository 資訊 -->
+      <RepositoryType>git</RepositoryType>
+      <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
+      <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
+
+      <!-- README 和授權文件 -->
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageLicenseFile>LICENSE</PackageLicenseFile>
+
+      <!-- XML 文件產生 -->
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+      <!-- MSBuild Task 相關設定 -->
+      <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+      <IncludeBuildOutput>true</IncludeBuildOutput>
+      <DevelopmentDependency>true</DevelopmentDependency>
+      <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +48,18 @@
 
   <ItemGroup>
     <None Include="build\**" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
