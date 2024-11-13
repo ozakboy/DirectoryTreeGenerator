@@ -80,18 +80,30 @@ namespace  ozakboy.DirectoryTreeGenerator
             _treeBuilder.AppendLine($"{new string(' ', _indentLevel * 2)}{content}");
         }
     }
+
+    /// <summary>
+    /// 目錄樹統計資訊類
+    /// 用於收集和生成目錄結構的統計資訊
+    /// </summary>
     public class TreeStatistics
     {
-        public int TotalDirectories { get; private set; }
-        public int TotalFiles { get; private set; }
-        public long TotalSize { get; private set; }
-        public Dictionary<string, int> ExtensionCounts { get; private set; }
+        // 統計數據
+        public int TotalDirectories { get; private set; }         // 總目錄數
+        public int TotalFiles { get; private set; }              // 總文件數
+        public long TotalSize { get; private set; }              // 總大小
+        public Dictionary<string, int> ExtensionCounts { get; private set; }  // 副檔名統計
 
+        /// <summary>
+        /// 建構函數，初始化統計資料
+        /// </summary>
         public TreeStatistics()
         {
             ExtensionCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// 添加文件到統計資訊中
+        /// </summary>
         public void AddFile(FileInfo file)
         {
             TotalFiles++;
@@ -106,11 +118,17 @@ namespace  ozakboy.DirectoryTreeGenerator
             }
         }
 
+        /// <summary>
+        /// 添加目錄到統計資訊中
+        /// </summary>
         public void AddDirectory()
         {
             TotalDirectories++;
         }
 
+        /// <summary>
+        /// 生成統計報告
+        /// </summary>
         public string GenerateReport()
         {
             var report = new System.Text.StringBuilder();
@@ -131,6 +149,9 @@ namespace  ozakboy.DirectoryTreeGenerator
             return report.ToString();
         }
 
+        /// <summary>
+        /// 格式化文件大小
+        /// </summary>
         private string FormatFileSize(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
