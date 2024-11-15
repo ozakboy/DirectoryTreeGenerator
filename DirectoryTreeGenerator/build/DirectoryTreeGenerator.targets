@@ -1,40 +1,57 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!-- 使用相對路徑而不是固定路徑 -->
-    <DirectoryTreeGeneratorTaskDir>$(MSBuildThisFileDirectory)..\tasks</DirectoryTreeGeneratorTaskDir>
+    <!-- 修正路徑設定 -->
+    <DirectoryTreeGeneratorTaskDir>$(MSBuildThisFileDirectory)..\lib\net462</DirectoryTreeGeneratorTaskDir>
     <DirectoryTreeGeneratorTaskPath>$(DirectoryTreeGeneratorTaskDir)\DirectoryTreeGenerator.dll</DirectoryTreeGeneratorTaskPath>
+    <DirectoryTreeConfigTemplate>$(MSBuildThisFileDirectory)..\content\directorytree.json</DirectoryTreeConfigTemplate>
   </PropertyGroup>
 
-  <!-- 註冊 Task -->
-  <UsingTask TaskName="ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask"
-             AssemblyFile="$(DirectoryTreeGeneratorTaskPath)" />
+  <!-- 在使用任務前檢查並輸出診斷信息 -->
+  <Target Name="DirectoryTreeGeneratorDiagnostics" BeforeTargets="GenerateDirectoryTree">
+    <Message Text="DirectoryTreeGenerator 診斷資訊:" Importance="high" />
+    <Message Text="MSBuildThisFileDirectory: $(MSBuildThisFileDirectory)" Importance="high" />
+    <Message Text="Task DLL 路徑: $(DirectoryTreeGeneratorTaskPath)" Importance="high" />
+    <Message Text="DLL 是否存在: $(Exists($(DirectoryTreeGeneratorTaskPath)))" Importance="high" />
+  </Target>
 
-  <!-- 配置預設值 -->
+  <!-- 設定預設值 -->
   <PropertyGroup>
     <GenerateDirectoryTree Condition="'$(GenerateDirectoryTree)' == ''">true</GenerateDirectoryTree>
     <DirectoryTreeConfigPath Condition="'$(DirectoryTreeConfigPath)' == ''">$(MSBuildProjectDirectory)\directorytree.json</DirectoryTreeConfigPath>
   </PropertyGroup>
 
-  <!-- 在建置之前執行的診斷資訊 -->
-  <Target Name="DirectoryTreeGeneratorDiagnostics" BeforeTargets="GenerateDirectoryTreeAfterBuild">
-    <Message Text="DirectoryTreeGenerator 診斷資訊:" Importance="high" />
-    <Message Text="Task 路徑: $(DirectoryTreeGeneratorTaskPath)" Importance="high" />
-    <Message Text="專案目錄: $(MSBuildProjectDirectory)" Importance="high" />
-    <Message Text="配置檔案: $(DirectoryTreeConfigPath)" Importance="high" />
+  <!-- 註冊任務 -->
+  <UsingTask TaskName="ozakboy.DirectoryTreeGenerator.MSBuild.GenerateDirectoryTreeTask"
+             AssemblyFile="$(DirectoryTreeGeneratorTaskPath)"
+             Condition="Exists('$(DirectoryTreeGeneratorTaskPath)')" />
+
+  <!-- 複製設定檔案 -->
+  <Target Name="EnsureDirectoryTreeConfigExists" BeforeTargets="Build">
+    <!-- 檢查並建立配置檔案 -->
+    <Copy SourceFiles="$(DirectoryTreeConfigTemplate)"
+          DestinationFiles="$(DirectoryTreeConfigPath)"
+          Condition="!Exists('$(DirectoryTreeConfigPath)') And Exists('$(DirectoryTreeConfigTemplate)')"
+          ContinueOnError="true">
+      <Output TaskParameter="CopiedFiles" ItemName="CopiedConfigFiles" />
+    </Copy>
+
+    <Message Text="✅ 已創建配置文件: $(DirectoryTreeConfigPath)"
+             Condition="'@(CopiedConfigFiles)' != ''"
+             Importance="high" />
   </Target>
 
   <!-- 生成目錄樹 -->
-  <Target Name="GenerateDirectoryTreeAfterBuild"
+  <Target Name="GenerateDirectoryTree"
           AfterTargets="Build"
-          Condition="'$(GenerateDirectoryTree)' == 'true'">
+          DependsOnTargets="EnsureDirectoryTreeConfigExists"
+          Condition="'$(GenerateDirectoryTree)' == 'true' And Exists('$(DirectoryTreeGeneratorTaskPath)')">
 
-    <Warning Text="找不到對應框架的 DirectoryTreeGenerator 組件: $(DirectoryTreeGeneratorTaskPath)"
-             Condition="!Exists('$(DirectoryTreeGeneratorTaskPath)')" />
+    <Message Text="開始生成目錄樹..." Importance="high" />
 
+    <!-- 執行生成任務 -->
     <GenerateDirectoryTreeTask
-       ProjectDir="$(MSBuildProjectDirectory)"
-       ConfigPath="$(DirectoryTreeConfigPath)"
-       Condition="Exists('$(DirectoryTreeGeneratorTaskPath)')"
-       ContinueOnError="true" />
+      ProjectDir="$(MSBuildProjectDirectory)"
+      ConfigPath="$(DirectoryTreeConfigPath)"
+      ContinueOnError="true" />
   </Target>
 </Project>

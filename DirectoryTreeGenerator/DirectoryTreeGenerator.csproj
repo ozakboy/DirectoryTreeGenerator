@@ -4,91 +4,103 @@
     <LangVersion>10.0</LangVersion>
     <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
 
-    <!-- NuGet 套件相關設定 -->
+    <!-- NuGet 套件設定 -->
     <PackageId>ozakboy.DirectoryTreeGenerator</PackageId>
-    <PackageVersion>1.0.0-beta.3</PackageVersion>
+    <Version>1.0.0-beta.4</Version>
     <Authors>ozakboy</Authors>
     <Company>ozakboy</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>A library for generating directory structure documentation in Markdown format</Description>
     <PackageTags>directory-tree;markdown;documentation;generator</PackageTags>
 
-    <!-- Repository 資訊 -->
+    <!-- 產生 NuGet 套件設定 -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IsTool>true</IsTool>
+
+    <!-- 輸出設定 -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    
+    <!-- 文件設定 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+
+    <!-- Repository 設定 -->
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
 
-    <!-- 停用並行建置以避免檔案鎖定問題 -->
-    <BuildInParallel>false</BuildInParallel>
-
-    <!-- MSBuild Task 相關設定 -->
-    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <!-- MSBuild Task 設定 -->
     <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- 停用並行建置 -->
+    <BuildInParallel>false</BuildInParallel>
   </PropertyGroup>
 
+  <!-- NuGet 套件引用 -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.12.6" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" PrivateAssets="all" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
-  <!-- 在建置之前清理 tasks 資料夾 -->
-  <Target Name="CleanTasksFolder" BeforeTargets="BeforeBuild">
+  <!-- 打包文件設定 -->
+  <ItemGroup>
+    <!-- README 和 LICENSE -->
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+
+    <!-- MSBuild Target 文件 -->
+    <None Include="build\DirectoryTreeGenerator.targets" Pack="true" PackagePath="build" />
+    <None Include="build\DirectoryTreeGenerator.targets" Pack="true" PackagePath="buildMultiTargeting" />
+
+    <!-- 預設配置文件 -->
+    <None Include="content\directorytree.json" Pack="true" PackagePath="content" />
+
+    <!-- 確保將 dll 和其他必要文件打包到正確位置 -->
+    <!--<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="lib\$(TargetFramework)" />
+    <None Include="$(OutputPath)\$(AssemblyName).pdb" Pack="true" PackagePath="lib\$(TargetFramework)" />-->
+  </ItemGroup>
+
+  <Target Name="CopyFilesToFrameworkDirectory" AfterTargets="Build">
     <PropertyGroup>
-      <TasksOutputPath>$(OutputPath)tasks</TasksOutputPath>
+      <FrameworkSpecificOutputPath>$(OutputPath)</FrameworkSpecificOutputPath>
     </PropertyGroup>
 
-    <Message Text="正在清理 tasks 資料夾..." Importance="high" />
-    <RemoveDir Directories="$(TasksOutputPath)" />
-  </Target>
-
-  <!-- 在建置完成後複製檔案，但在打包之前 -->
-  <Target Name="CopyToTasksFolder"
-          AfterTargets="Build"
-          BeforeTargets="GenerateNuspec">
-    <PropertyGroup>
-      <TasksOutputPath>$(OutputPath)tasks</TasksOutputPath>
-    </PropertyGroup>
-
-    <!-- 確保目標資料夾存在 -->
-    <MakeDir Directories="$(TasksOutputPath)" />
-
-    <!-- 收集要複製的檔案 -->
+    <!-- 將 DLL 和相依檔案複製到架構特定的資料夾 -->
     <ItemGroup>
-      <FilesToCopy Include="$(OutputPath)*.dll" />
+      <FrameworkFiles Include="$(OutputPath)$(AssemblyName).dll" />
+      <FrameworkFiles Include="$(OutputPath)$(AssemblyName).pdb" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
+      <FrameworkFiles Include="$(OutputPath)System.Text.Json.dll" Condition="Exists('$(OutputPath)System.Text.Json.dll')" />
     </ItemGroup>
 
-    <!-- 複製檔案到 tasks 資料夾 -->
-    <Copy SourceFiles="@(FilesToCopy)"
-          DestinationFolder="$(TasksOutputPath)"
-          SkipUnchangedFiles="true"
-          Retries="3"
-          RetryDelayMilliseconds="300" />
+    <Message Text="正在複製檔案到: $(FrameworkSpecificOutputPath)" Importance="high" />
+    <Message Text="複製的檔案: @(FrameworkFiles->'%(Filename)%(Extension)')" Importance="high" />
+
+    <!-- 複製設定檔 -->
+    <Copy SourceFiles="content\directorytree.json"
+          DestinationFolder="$(FrameworkSpecificOutputPath)"
+          SkipUnchangedFiles="true" />
   </Target>
 
-  <ItemGroup>
-    <!-- targets 檔案設定 -->
-    <Content Include="build\DirectoryTreeGenerator.targets">
-      <PackagePath>build\</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="build\DirectoryTreeGenerator.targets">
-      <PackagePath>buildMultiTargeting\</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
+  <!-- 為打包準備檔案 -->
+  <Target Name="PreparePackageFiles" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <!-- 將 DLL 加入到適當的框架資料夾 -->
+      <None Include="$(OutputPath)\**\$(AssemblyName).dll" Pack="true">
+        <PackagePath>lib\%(RecursiveDir)</PackagePath>
+      </None>
+      <None Include="$(OutputPath)\**\$(AssemblyName).pdb" Pack="true" Condition="Exists('$(OutputPath)\**\$(AssemblyName).pdb')">
+        <PackagePath>lib\%(RecursiveDir)</PackagePath>
+      </None>
+      <!-- 將相依的 DLL 也加入 -->
+      <None Include="$(OutputPath)\**\System.Text.Json.dll" Pack="true" Condition="Exists('$(OutputPath)\**\System.Text.Json.dll')">
+        <PackagePath>lib\%(RecursiveDir)</PackagePath>
+      </None>
+    </ItemGroup>
+  </Target>
+  
 </Project>
