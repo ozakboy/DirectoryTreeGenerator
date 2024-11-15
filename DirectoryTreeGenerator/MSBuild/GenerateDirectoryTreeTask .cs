@@ -3,7 +3,7 @@ using Microsoft.Build.Utilities;
 using System;
 using System.IO;
 using System.Text.Json;
-using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace ozakboy.DirectoryTreeGenerator.MSBuild
 {
@@ -11,8 +11,12 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
     /// MSBuild 任務類，用於生成目錄樹結構
     /// 當專案進行構建時會自動執行此任務
     /// </summary>
-    public class GenerateDirectoryTreeTask : Microsoft.Build.Utilities.Task
+    public class GenerateDirectoryTreeTask : Task, IDisposable
     {
+        private bool _disposed = false;
+        private CancellationTokenSource _cancellationTokenSource;
+        private readonly int _timeoutMilliseconds = 30000; // 30 秒超時
+
         /// <summary>
         /// 必需的專案目錄路徑
         /// </summary>
@@ -25,17 +29,55 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
         [Required]
         public string ConfigPath { get; set; } = string.Empty;
 
+        public GenerateDirectoryTreeTask()
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
+        }
+
         /// <summary>
         /// 執行目錄樹生成任務的主要方法
         /// </summary>
-        /// <returns></returns>
         public override bool Execute()
         {
             try
             {
+                // 設置超時取消
+                _cancellationTokenSource.CancelAfter(_timeoutMilliseconds);
+
+                // 直接執行，不使用 Task
+                return ExecuteInternal();
+            }
+            catch (OperationCanceledException)
+            {
+                Log.LogWarning("⚠️ 任務執行超時或被取消");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"❌ 致命錯誤: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                // 確保資源被釋放
+                Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 內部執行方法
+        /// </summary>
+        private bool ExecuteInternal()
+        {
+            try
+            {
                 Log.LogMessage(MessageImportance.High, "開始執行 DirectoryTreeGenerator...");
-                Log.LogMessage(MessageImportance.Normal, $"專案目錄: {ProjectDir}");
-                Log.LogMessage(MessageImportance.Normal, $"配置檔案路徑: {ConfigPath}");
+
+                // 檢查是否已取消
+                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    return false;
+                }
 
                 // 驗證輸入參數
                 ValidateInputs();
@@ -44,12 +86,19 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
                 Log.LogMessage(MessageImportance.Normal, "正在載入配置檔案...");
                 var config = LoadConfiguration();
 
+                // 檢查是否已取消
+                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    return false;
+                }
+
                 // 輸出配置資訊
                 LogConfiguration(config);
 
                 // 創建目錄樹生成器實例並執行生成
                 Log.LogMessage(MessageImportance.Normal, "開始生成目錄樹...");
                 var generator = new DirectoryTreeGenerator(config);
+
                 generator.GenerateTree(ProjectDir, ProjectDir);
 
                 // 計算輸出檔案的完整路徑
@@ -58,17 +107,13 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
                 // 檢查檔案是否成功生成
                 if (File.Exists(outputFilePath))
                 {
-                    Log.LogMessage(MessageImportance.High,
-                        $"✅ 目錄樹生成成功！");
-                    Log.LogMessage(MessageImportance.High,
-                        $"📄 輸出檔案位置: {outputFilePath}");
-                }
-                else
-                {
-                    Log.LogWarning("檔案似乎未成功生成，請檢查輸出路徑和權限設定。");
+                    Log.LogMessage(MessageImportance.High, $"✅ 目錄樹生成成功！");
+                    Log.LogMessage(MessageImportance.High, $"📄 輸出檔案位置: {outputFilePath}");
+                    return true;
                 }
 
-                return true;
+                Log.LogWarning("檔案似乎未成功生成，請檢查輸出路徑和權限設定。");
+                return false;
             }
             catch (Exception ex)
             {
@@ -98,14 +143,12 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
 
         /// <summary>
         /// 載入配置文件
-        /// 如果配置文件不存在或解析失敗，則使用默認配置
         /// </summary>
         private GeneratorConfig LoadConfiguration()
         {
             if (!File.Exists(ConfigPath))
             {
-                Log.LogMessage(MessageImportance.Normal,
-                    "⚠️ 找不到配置文件，將使用默認設定");
+                Log.LogMessage(MessageImportance.Normal, "⚠️ 找不到配置文件，將使用默認設定");
                 return new GeneratorConfig();
             }
 
@@ -155,6 +198,44 @@ namespace ozakboy.DirectoryTreeGenerator.MSBuild
                     Log.LogMessage(MessageImportance.Normal, $"  - {pattern}");
                 }
             }
+        }
+
+        /// <summary>
+        /// 釋放資源
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// 釋放資源的保護方法
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // 釋放託管資源
+                    if (_cancellationTokenSource != null)
+                    {
+                        _cancellationTokenSource.Dispose();
+                        _cancellationTokenSource = null;
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// 解構函數
+        /// </summary>
+        ~GenerateDirectoryTreeTask()
+        {
+            Dispose(false);
         }
     }
 }

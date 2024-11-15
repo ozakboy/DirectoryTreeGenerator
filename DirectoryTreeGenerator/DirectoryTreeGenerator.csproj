@@ -1,51 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-      <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
-      <LangVersion>10.0</LangVersion>
-      <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
+    <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
 
-      <!-- NuGet 套件相關設定 -->
-      <PackageId>ozakboy.DirectoryTreeGenerator</PackageId>
-      <PackageVersion>1.0.0-beta.3</PackageVersion>
-      <Authors>ozakboy</Authors>
-      <Company>ozakboy</Company>
-      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <Description>A library for generating directory structure documentation in Markdown format</Description>
-      <PackageTags>directory-tree;markdown;documentation;generator</PackageTags>
+    <!-- NuGet 套件相關設定 -->
+    <PackageId>ozakboy.DirectoryTreeGenerator</PackageId>
+    <PackageVersion>1.0.0-beta.3</PackageVersion>
+    <Authors>ozakboy</Authors>
+    <Company>ozakboy</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A library for generating directory structure documentation in Markdown format</Description>
+    <PackageTags>directory-tree;markdown;documentation;generator</PackageTags>
 
-      <!-- Repository 資訊 -->
-      <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
-      <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
+    <!-- Repository 資訊 -->
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
 
-      <!-- README 和授權文件 -->
-      <PackageReadmeFile>README.md</PackageReadmeFile>
-      <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <!-- 停用並行建置以避免檔案鎖定問題 -->
+    <BuildInParallel>false</BuildInParallel>
 
-      <!-- XML 文件產生 -->
-      <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-      <!-- MSBuild Task 相關設定 -->
-      <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-      <IncludeBuildOutput>true</IncludeBuildOutput>
-      <DevelopmentDependency>true</DevelopmentDependency>
-      <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- MSBuild Task 相關設定 -->
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <!-- MSBuild 相依性 -->
     <PackageReference Include="Microsoft.Build.Framework" Version="17.12.6" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" PrivateAssets="all" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+  <!-- 在建置之前清理 tasks 資料夾 -->
+  <Target Name="CleanTasksFolder" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <TasksOutputPath>$(OutputPath)tasks</TasksOutputPath>
+    </PropertyGroup>
+
+    <Message Text="正在清理 tasks 資料夾..." Importance="high" />
+    <RemoveDir Directories="$(TasksOutputPath)" />
+  </Target>
+
+  <!-- 在建置完成後複製檔案，但在打包之前 -->
+  <Target Name="CopyToTasksFolder"
+          AfterTargets="Build"
+          BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <TasksOutputPath>$(OutputPath)tasks</TasksOutputPath>
+    </PropertyGroup>
+
+    <!-- 確保目標資料夾存在 -->
+    <MakeDir Directories="$(TasksOutputPath)" />
+
+    <!-- 收集要複製的檔案 -->
+    <ItemGroup>
+      <FilesToCopy Include="$(OutputPath)*.dll" />
+    </ItemGroup>
+
+    <!-- 複製檔案到 tasks 資料夾 -->
+    <Copy SourceFiles="@(FilesToCopy)"
+          DestinationFolder="$(TasksOutputPath)"
+          SkipUnchangedFiles="true"
+          Retries="3"
+          RetryDelayMilliseconds="300" />
+  </Target>
 
   <ItemGroup>
     <!-- targets 檔案設定 -->
@@ -58,31 +79,6 @@
       <Pack>true</Pack>
     </Content>
   </ItemGroup>
-  <Target Name="CopyToTasksFolder" AfterTargets="Build">
-    <PropertyGroup>
-      <TasksOutputPath>$(OutDir)tasks</TasksOutputPath>
-    </PropertyGroup>
-
-    <Message Text="正在複製 dll 到 tasks 資料夾" Importance="high" />
-    <Message Text="來源: $(TargetPath)" Importance="high" />
-    <Message Text="目標: $(TasksOutputPath)" Importance="high" />
-
-    <!-- 建立目標資料夾 -->
-    <MakeDir Directories="$(TasksOutputPath)" />
-
-    <!-- 複製主要 dll -->
-    <Copy SourceFiles="$(TargetPath)"
-          DestinationFolder="$(TasksOutputPath)" />
-
-    <!-- 複製相依的 dll -->
-    <ItemGroup>
-      <DependencyFiles Include="$(TargetDir)*.dll"
-                      Exclude="$(TargetPath)" />
-    </ItemGroup>
-    <Copy SourceFiles="@(DependencyFiles)"
-          DestinationFolder="$(TasksOutputPath)" />
-  </Target>
-
 
   <ItemGroup>
     <None Include="..\LICENSE">

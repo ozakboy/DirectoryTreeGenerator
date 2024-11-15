@@ -1,10 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!-- 使用 bin 目錄下的 tasks 路徑 -->
-    <DirectoryTreeGeneratorTaskDir>$(TargetFramework)</DirectoryTreeGeneratorTaskDir>
-
-    <!-- 設定 Task 組件路徑 -->
-    <DirectoryTreeGeneratorTaskPath>$(MSBuildThisFileDirectory)..\bin\Debug\$(DirectoryTreeGeneratorTaskDir)\tasks\DirectoryTreeGenerator.dll</DirectoryTreeGeneratorTaskPath>
+    <!-- 使用相對路徑而不是固定路徑 -->
+    <DirectoryTreeGeneratorTaskDir>$(MSBuildThisFileDirectory)..\tasks</DirectoryTreeGeneratorTaskDir>
+    <DirectoryTreeGeneratorTaskPath>$(DirectoryTreeGeneratorTaskDir)\DirectoryTreeGenerator.dll</DirectoryTreeGeneratorTaskPath>
   </PropertyGroup>
 
   <!-- 註冊 Task -->
@@ -17,11 +15,9 @@
     <DirectoryTreeConfigPath Condition="'$(DirectoryTreeConfigPath)' == ''">$(MSBuildProjectDirectory)\directorytree.json</DirectoryTreeConfigPath>
   </PropertyGroup>
 
-  <!-- 診斷資訊 -->
+  <!-- 在建置之前執行的診斷資訊 -->
   <Target Name="DirectoryTreeGeneratorDiagnostics" BeforeTargets="GenerateDirectoryTreeAfterBuild">
     <Message Text="DirectoryTreeGenerator 診斷資訊:" Importance="high" />
-    <Message Text="目標框架: $(TargetFramework)" Importance="high" />
-    <Message Text="選擇的 Task 框架: $(DirectoryTreeGeneratorTaskDir)" Importance="high" />
     <Message Text="Task 路徑: $(DirectoryTreeGeneratorTaskPath)" Importance="high" />
     <Message Text="專案目錄: $(MSBuildProjectDirectory)" Importance="high" />
     <Message Text="配置檔案: $(DirectoryTreeConfigPath)" Importance="high" />
@@ -36,8 +32,9 @@
              Condition="!Exists('$(DirectoryTreeGeneratorTaskPath)')" />
 
     <GenerateDirectoryTreeTask
-        ProjectDir="$(MSBuildProjectDirectory)"
-        ConfigPath="$(DirectoryTreeConfigPath)"
-        Condition="Exists('$(DirectoryTreeGeneratorTaskPath)')" />
+       ProjectDir="$(MSBuildProjectDirectory)"
+       ConfigPath="$(DirectoryTreeConfigPath)"
+       Condition="Exists('$(DirectoryTreeGeneratorTaskPath)')"
+       ContinueOnError="true" />
   </Target>
 </Project>
