@@ -1,12 +1,51 @@
 {
   "outputFileName": "DirectoryStructure.md",
+  "outputPath": "",
   "ignorePatterns": [
     "**/bin/**",
     "**/obj/**",
-    "**/.vs/**"
+    "**/.vs/**",
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/*.user",
+    "**/*.suo"
   ],
+  "ignoreDirectories": [
+    "bin",
+    "obj",
+    ".vs",
+    ".git",
+    "node_modules"
+  ],
+  "ignoreFiles": [
+    ".DS_Store",
+    "thumbs.db"
+  ],
+  "ignoreExtensions": [
+    ".tmp",
+    ".cache"
+  ],
+  "fileExtensionIcons": {
+    ".cs": "📝",
+    ".json": "📋",
+    ".md": "📄",
+    ".txt": "📃",
+    ".xml": "📰",
+    ".png": "🖼️",
+    ".jpg": "🖼️",
+    ".gif": "🖼️",
+    ".pdf": "📚",
+    ".zip": "📦",
+    ".exe": "⚙️",
+    ".dll": "🔧"
+  },
   "includeFileSize": true,
   "includeLastModified": true,
+  "directoryPrefix": "📁",
+  "defaultFilePrefix": "📄",
+  "indentSpaces": 2,
+  "includeHeader": true,
+  "headerText": "# Project Directory Structure",
   "includeStatistics": true,
   "sortDirectoriesFirst": true
 }
