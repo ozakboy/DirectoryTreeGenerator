@@ -2,126 +2,98 @@
 
 [![NuGet](https://img.shields.io/nuget/v/ozakboy.DirectoryTreeGenerator.svg)](https://www.nuget.org/packages/ozakboy.DirectoryTreeGenerator/)
 
-DirectoryTreeGenerator 是一個強大的 .NET 函式庫，可以自動生成專案目錄結構的 Markdown 文檔。它能夠遍歷指定目錄，並生成一個包含圖示的目錄樹結構文件，幫助開發者更好地理解和展示專案結構。
+DirectoryTreeGenerator 是一個功能豐富的 .NET 函式庫，專門用於生成目錄結構的 Markdown 文檔。透過這個工具，您可以輕鬆地將專案或任意目錄的結構轉換成清晰易讀的樹狀圖文件，並支援自訂圖示、過濾規則和統計資訊。
 
-## 特色功能
+## 核心功能
 
-- 📁 自動生成帶有圖示的目錄樹結構
-- 🔍 支援自訂忽略規則（檔案、目錄、副檔名）
-- 📊 可選的統計資訊（檔案數量、大小等）
-- ⚙️ 透過 JSON 配置文件靈活設定
-- 🔄 支援 MSBuild 整合，可在專案建構時自動生成
-- 🎯 支援多個 .NET 版本（.NET Standard 2.0/2.1, .NET 6.0+, .NET Framework 4.6.2）
+- 🎯 自動掃描並生成目錄結構的 Markdown 文件
+- 📁 支援自訂目錄和檔案的圖示
+- 🔍 彈性的忽略規則設定（支援檔案、目錄、副檔名和 glob 模式）
+- 📊 詳細的統計資訊（總檔案數、大小、類型分布等）
+- ⚡ 高效能的檔案系統處理
+- 🛠️ 支援多個 .NET 平台（.NET Standard 2.0/2.1, .NET 6.0-8.0, .NET Framework 4.6.2）
 
-## 安裝
+## 快速開始
 
-### 使用 NuGet Package Manager
+### 安裝套件
 
+使用 NuGet Package Manager:
 ```bash
 Install-Package ozakboy.DirectoryTreeGenerator
 ```
 
-### 使用 .NET CLI
-
+或使用 .NET CLI:
 ```bash
 dotnet add package ozakboy.DirectoryTreeGenerator
 ```
 
-## 基本使用
+### 基本使用
 
-### 1. 配置文件設定
+```csharp
+// 建立預設配置的生成器
+var generator = new DirectoryTreeGenerator();
 
-在專案根目錄創建 `directorytree.json` 文件：
+// 生成目錄樹
+generator.GenerateTree(
+    "C:\\YourProject",     // 要掃描的根目錄
+    "C:\\Output"          // 輸出目錄
+);
+```
+
+### 使用配置檔案
+
+1. 在專案根目錄建立 `directorytree.json`:
 
 ```json
 {
   "outputFileName": "DirectoryStructure.md",
+  "includeFileSize": true,
+  "includeLastModified": true,
+  "includeStatistics": true,
+  "sortDirectoriesFirst": true,
   "ignorePatterns": [
     "**/bin/**",
     "**/obj/**",
     "**/.vs/**"
   ],
-  "includeFileSize": true,
-  "includeLastModified": true,
-  "includeStatistics": true,
-  "sortDirectoriesFirst": true
+  "fileExtensionIcons": {
+    ".cs": "📝",
+    ".json": "📋",
+    ".md": "📄"
+  }
 }
 ```
 
-### 2. 專案檔整合
-
-在專案檔 (.csproj) 中添加以下設定：
-
-```xml
-<PropertyGroup>
-  <GenerateDirectoryTree>true</GenerateDirectoryTree>
-  <DirectoryTreeConfigPath>$(MSBuildProjectDirectory)/directorytree.json</DirectoryTreeConfigPath>
-</PropertyGroup>
-```
-
-### 3. 程式碼中使用
+2. 使用配置檔案初始化生成器:
 
 ```csharp
-using ozakboy.DirectoryTreeGenerator;
+// 使用指定的配置檔案路徑
+var generator = new DirectoryTreeGenerator("path/to/directorytree.json");
 
-// 創建配置
-var config = new GeneratorConfig
-{
-    OutputFileName = "DirectoryStructure.md",
-    IncludeFileSize = true,
-    IncludeStatistics = true
-};
-
-// 初始化生成器
-var generator = new DirectoryTreeGenerator(config);
-
-// 生成目錄樹
-generator.GenerateTree("要掃描的目錄路徑", "輸出目錄路徑");
+// 或自動搜尋配置檔案
+var generator = new DirectoryTreeGenerator();
 ```
 
 ## 配置選項
 
 ### GeneratorConfig 類別屬性
 
-| 屬性名稱 | 類型 | 預設值 | 說明 |
-|----------|------|--------|------|
-| OutputFileName | string | "DirectoryStructure.md" | 輸出文件名稱 |
-| IgnorePatterns | string[] | ["**/bin/**", ...] | 要忽略的檔案/目錄模式 |
-| IgnoreDirectories | string[] | [] | 要忽略的目錄名稱列表 |
-| IgnoreFiles | string[] | [] | 要忽略的檔案名稱列表 |
-| IgnoreExtensions | string[] | [] | 要忽略的副檔名列表 |
+| 屬性 | 類型 | 預設值 | 說明 |
+|------|------|--------|------|
+| OutputFileName | string | "DirectoryStructure.md" | 輸出檔案名稱 |
+| DirectoryPrefix | string | "📁" | 目錄前綴圖示 |
+| DefaultFilePrefix | string | "📄" | 預設檔案前綴圖示 |
+| IndentSpaces | int | 2 | 縮排空格數 |
+| IncludeHeader | bool | true | 是否包含標題 |
+| HeaderText | string | "# Project Directory Structure" | 標題文字 |
 | IncludeFileSize | bool | false | 是否顯示檔案大小 |
 | IncludeLastModified | bool | false | 是否顯示最後修改時間 |
 | IncludeStatistics | bool | false | 是否包含統計資訊 |
 | SortDirectoriesFirst | bool | true | 是否將目錄排在檔案前面 |
 
-## 輸出範例
+### 忽略規則設定
 
-```markdown
-# Project Directory Structure
-
-📁 MyProject/
-  📁 src/
-    📄 Program.cs (2.5 KB)
-    📄 Config.json (1.2 KB)
-  📁 tests/
-    📄 UnitTests.cs (3.8 KB)
-
-## 目錄統計資訊
-- 總目錄數：2
-- 總文件數：3
-- 總大小：7.5 KB
-
-### 文件類型統計
-- .cs：2 個文件
-- .json：1 個文件
-```
-
-## 進階功能
-
-### 自訂忽略規則
-
-支援多種忽略規則設定：
+支援多種忽略規則類型：
 
 ```json
 {
@@ -132,12 +104,69 @@ generator.GenerateTree("要掃描的目錄路徑", "輸出目錄路徑");
 }
 ```
 
-### MSBuild 整合
+## 輸出範例
 
-當設定 `GenerateDirectoryTree` 為 `true` 時，目錄樹將在以下情況自動生成：
-- 專案建構完成後
-- 發布專案時
-- 打包 NuGet 套件時
+```markdown
+# Project Directory Structure
+
+📁 src/
+  📝 Program.cs (2.5 KB) - 2024-03-15 14:30:00
+  📋 Config.json (1.2 KB) - 2024-03-15 14:25:00
+📁 tests/
+  📝 UnitTests.cs (3.8 KB) - 2024-03-15 14:35:00
+
+## 目錄統計資訊
+- 總目錄數：2
+- 總檔案數：3
+- 總大小：7.5 KB
+- 最後更新：2024-03-15 14:35:00
+
+### 檔案類型統計
+- .cs：2 個檔案
+- .json：1 個檔案
+```
+
+## 進階功能
+
+### 自訂檔案圖示
+
+可以為不同的副檔名設定專屬圖示：
+
+```json
+{
+  "fileExtensionIcons": {
+    ".cs": "📝",
+    ".json": "📋",
+    ".md": "📄",
+    ".txt": "📃",
+    ".xml": "📰",
+    ".png": "🖼️",
+    ".jpg": "🖼️",
+    ".pdf": "📚",
+    ".zip": "📦",
+    ".exe": "⚙️",
+    ".dll": "🔧"
+  }
+}
+```
+
+### 程式碼中配置
+
+也可以透過程式碼動態設定配置：
+
+```csharp
+var config = new GeneratorConfig
+{
+    OutputFileName = "MyDirectoryTree.md",
+    IncludeFileSize = true,
+    IncludeLastModified = true,
+    IncludeStatistics = true,
+    SortDirectoriesFirst = true,
+    IgnorePatterns = new[] { "**/bin/**", "**/obj/**" }
+};
+
+var generator = new DirectoryTreeGenerator(config);
+```
 
 ## 支援的平台
 
@@ -147,11 +176,3 @@ generator.GenerateTree("要掃描的目錄路徑", "輸出目錄路徑");
 - .NET 7.0
 - .NET 8.0
 - .NET Framework 4.6.2
-
-## 貢獻
-
-歡迎提交 Pull Request 或建立 Issue 來改善這個專案。
-
-## 授權
-
-本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 文件
