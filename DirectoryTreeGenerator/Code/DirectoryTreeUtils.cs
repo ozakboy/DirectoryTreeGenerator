@@ -1,7 +1,7 @@
 ﻿
 using System.IO;
 
-namespace ozakboy.DirectoryTreeGenerator
+namespace ozakboy.DirectoryTreeGenerator.Code
 {
     /// <summary>
     /// 目錄樹工具類

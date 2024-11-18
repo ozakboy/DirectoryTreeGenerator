@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ozakboy.DirectoryTreeGenerator.Code;
 
-namespace ozakboy.DirectoryTreeGenerator
+namespace ozakboy.DirectoryTreeGenerator.Configurations
 {
     /// <summary>
     /// 目錄樹生成器的配置類

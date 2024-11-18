@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace ozakboy.DirectoryTreeGenerator
+namespace ozakboy.DirectoryTreeGenerator.Code
 {
     /// <summary>
     /// Glob模式匹配器

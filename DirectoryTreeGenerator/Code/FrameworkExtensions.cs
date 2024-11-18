@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ozakboy.DirectoryTreeGenerator
+namespace ozakboy.DirectoryTreeGenerator.Code
 {
     /// <summary>
     /// 框架相容性擴展方法

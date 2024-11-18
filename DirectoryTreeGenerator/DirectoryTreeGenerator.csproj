@@ -3,6 +3,8 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net462</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <RootNamespace>ozakboy.DirectoryTreeGenerator</RootNamespace>
+    <AssemblyName>DirectoryTreeGenerator</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <!-- NuGet 套件設定 -->
     <PackageId>ozakboy.DirectoryTreeGenerator</PackageId>
@@ -15,11 +17,6 @@
     <!-- 產生 NuGet 套件設定 -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
-    <IsTool>true</IsTool>
-
-    <!-- 輸出設定 -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     
     <!-- 文件設定 -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -31,76 +28,25 @@
     <RepositoryUrl>https://github.com/ozakboy/DirectoryTreeGenerator</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ozakboy/DirectoryTreeGenerator</PackageProjectUrl>
 
-    <!-- MSBuild Task 設定 -->
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <IncludeBuildOutput>true</IncludeBuildOutput>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
-    <!-- 停用並行建置 -->
-    <BuildInParallel>false</BuildInParallel>
-  </PropertyGroup>
+    
+  </PropertyGroup>  
 
   <!-- NuGet 套件引用 -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" PrivateAssets="all" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
+
+
+  
 
   <!-- 打包文件設定 -->
   <ItemGroup>
     <!-- README 和 LICENSE -->
     <None Include="..\README.md" Pack="true" PackagePath="\" />
-    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
-
-    <!-- MSBuild Target 文件 -->
-    <None Include="build\DirectoryTreeGenerator.targets" Pack="true" PackagePath="build" />
-    <None Include="build\DirectoryTreeGenerator.targets" Pack="true" PackagePath="buildMultiTargeting" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />   
 
     <!-- 預設配置文件 -->
-    <None Include="content\directorytree.json" Pack="true" PackagePath="content" />
-
-    <!-- 確保將 dll 和其他必要文件打包到正確位置 -->
-    <!--<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="lib\$(TargetFramework)" />
-    <None Include="$(OutputPath)\$(AssemblyName).pdb" Pack="true" PackagePath="lib\$(TargetFramework)" />-->
-  </ItemGroup>
-
-  <Target Name="CopyFilesToFrameworkDirectory" AfterTargets="Build">
-    <PropertyGroup>
-      <FrameworkSpecificOutputPath>$(OutputPath)</FrameworkSpecificOutputPath>
-    </PropertyGroup>
-
-    <!-- 將 DLL 和相依檔案複製到架構特定的資料夾 -->
-    <ItemGroup>
-      <FrameworkFiles Include="$(OutputPath)$(AssemblyName).dll" />
-      <FrameworkFiles Include="$(OutputPath)$(AssemblyName).pdb" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
-      <FrameworkFiles Include="$(OutputPath)System.Text.Json.dll" Condition="Exists('$(OutputPath)System.Text.Json.dll')" />
+    <None Include=".\directorytree.json" Pack="true" PackagePath="\" />    
     </ItemGroup>
-
-    <Message Text="正在複製檔案到: $(FrameworkSpecificOutputPath)" Importance="high" />
-    <Message Text="複製的檔案: @(FrameworkFiles->'%(Filename)%(Extension)')" Importance="high" />
-
-    <!-- 複製設定檔 -->
-    <Copy SourceFiles="content\directorytree.json"
-          DestinationFolder="$(FrameworkSpecificOutputPath)"
-          SkipUnchangedFiles="true" />
-  </Target>
-
-  <!-- 為打包準備檔案 -->
-  <Target Name="PreparePackageFiles" BeforeTargets="GenerateNuspec">
-    <ItemGroup>
-      <!-- 將 DLL 加入到適當的框架資料夾 -->
-      <None Include="$(OutputPath)\**\$(AssemblyName).dll" Pack="true">
-        <PackagePath>lib\%(RecursiveDir)</PackagePath>
-      </None>
-      <None Include="$(OutputPath)\**\$(AssemblyName).pdb" Pack="true" Condition="Exists('$(OutputPath)\**\$(AssemblyName).pdb')">
-        <PackagePath>lib\%(RecursiveDir)</PackagePath>
-      </None>
-      <!-- 將相依的 DLL 也加入 -->
-      <None Include="$(OutputPath)\**\System.Text.Json.dll" Pack="true" Condition="Exists('$(OutputPath)\**\System.Text.Json.dll')">
-        <PackagePath>lib\%(RecursiveDir)</PackagePath>
-      </None>
-    </ItemGroup>
-  </Target>
   
 </Project>
