@@ -16,6 +16,13 @@ namespace ozakboy.DirectoryTreeGenerator.Configurations
         /// </summary>
         public string OutputFileName { get; set; } = "DirectoryStructure.md";
 
+
+        /// <summary>
+        /// 輸入文件的目錄路徑
+        /// 若為空則使用當前目錄
+        /// </summary>
+        public string InputPath { get; set; } = string.Empty;
+
         /// <summary>
         /// 輸出文件的目錄路徑
         /// 若為空則使用當前目錄

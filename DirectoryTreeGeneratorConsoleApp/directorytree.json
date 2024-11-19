@@ -1,7 +1,7 @@
 {
   "outputFileName": "DirectoryStructure.md",
-  "inputPath": "",
-  "outputPath": "",
+  "inputPath": "E:\\程式專案\\WzBackWebVueVite",
+  "outputPath": "E:\\程式專案\\WzBackWebVueVite",
   "ignorePatterns": [
     "**/bin/**",
     "**/obj/**",
@@ -41,7 +41,7 @@
     ".dll": "🔧"
   },
   "includeFileSize": true,
-  "includeLastModified": true,
+  "includeLastModified": false,
   "directoryPrefix": "📁",
   "defaultFilePrefix": "📄",
   "indentSpaces": 2,

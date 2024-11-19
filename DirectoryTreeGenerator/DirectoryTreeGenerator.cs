@@ -70,6 +70,19 @@ namespace ozakboy.DirectoryTreeGenerator
             _indentLevel = 0;
         }
 
+        /// <summary>
+        /// 生成目錄樹結構文檔 從GeneratorConfig自動取得 輸入/輸出位置
+        /// </summary>
+        public void GenerateTree()
+        {
+            if(string.IsNullOrEmpty(_config.InputPath))
+                _config.InputPath = AppDomain.CurrentDomain.BaseDirectory;
+            if(string.IsNullOrEmpty(_config.OutputPath))
+                _config.OutputPath = AppDomain.CurrentDomain.BaseDirectory;
+            GenerateTree(_config.InputPath, _config.OutputPath);
+        }
+
+
 
         /// <summary>
         /// 生成目錄樹結構文檔
@@ -294,6 +307,24 @@ namespace ozakboy.DirectoryTreeGenerator
         public TreeStatistics GetStatistics()
         {
             return _statistics;
+        }
+
+        /// <summary>
+        /// 取得要掃描的根目錄路徑
+        /// </summary>
+        /// <returns></returns>
+        public string GetInPath()
+        {
+            return _config.InputPath;
+        }
+
+        /// <summary>
+        /// 取得輸出檔案路徑
+        /// </summary>
+        /// <returns></returns>
+        public string GetOutPath()
+        {
+            return _config.OutputPath;
         }
 
         /// <summary>
